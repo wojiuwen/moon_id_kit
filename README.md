@@ -29,7 +29,8 @@ MoonBit 语言实现的 ULID (Universally Unique Lexicographically Sortable Iden
 3. **ULID 生成**
    - `Ulid.generate()` - 使用当前时间戳生成 ULID
    - `Ulid.generate_at(timestamp_ms)` - 使用指定时间戳生成 ULID
-   - 随机字节生成（简化实现）
+   - 使用系统随机源生成 10 字节随机数据
+   - 使用系统环境获取当前 Unix 毫秒时间戳
 
 4. **ULID 创建和验证**
    - `Ulid.from_parts(timestamp_ms, randomness)` - 从组件创建 ULID
@@ -52,11 +53,10 @@ MoonBit 语言实现的 ULID (Universally Unique Lexicographically Sortable Iden
 
 ### 🚧 开发中
 
-- 时间读取函数（timestamp_ms、timestamp_seconds）
 - UUID v6 到 ULID 的转换
-- 真实的随机数生成
-- 真实的时间戳获取
-- 完整的 Base32 编码/解码实现
+- 批量生成 API
+- Wasm JavaScript 接口
+- CLI 扩展功能
 
 ## API 文档
 
@@ -79,6 +79,10 @@ moon_ulid/
 │   ├── ulid_create_test.mbt        # 创建测试
 │   ├── ulid_string_test.mbt        # 字符串转换测试
 │   └── ulid_bytes_test.mbt         # 字节转换测试
+├── cmd/
+│   └── main/
+│       ├── main.mbt                # 核心功能演示程序
+│       └── moon.pkg                # 可执行包配置
 ├── api-v1.md                       # API 规范
 ├── moon.mod.json                   # 模块配置
 └── README.md                       # 本文件
@@ -90,50 +94,52 @@ moon_ulid/
 
 ```moonbit
 // 使用当前时间戳生成 ULID
-let ulid = Ulid.generate()
+let result = Ulid::generate()
 
 // 使用指定时间戳生成 ULID
-let ulid = Ulid.generate_at(1720000000000)
+let result = Ulid::generate_at(1720000000000)
 
 // 从组件创建 ULID
 let timestamp = 1720000000000
-let randomness = Bytes::make(10)
-// ... 使用随机数据填充 randomness
-let ulid = Ulid.from_parts(timestamp, randomness)
+let randomness : Bytes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+let result = Ulid::from_parts(timestamp, randomness)
 ```
 
 ### 字符串转换
 
 ```moonbit
 // 从字符串解析 ULID
-let ulid_str = "01H2J3K4L5M6N7P8Q9R"
-let ulid = Ulid.parse(ulid_str)
+let ulid_str = "01HF7YAT3V008J4CT4ANK7F24S"
+let result = Ulid::parse(ulid_str)
 
 // 将 ULID 转换为字符串
-let ulid_str = Ulid.to_string(ulid)
+let ulid_str = ulid.to_string()
 
 // 验证 ULID 字符串
-let is_valid = Ulid.is_valid("01H2J3K4L5M6N7P8Q9R")
+let is_valid = Ulid::is_valid("01HF7YAT3V008J4CT4ANK7F24S")
 ```
 
 ### 字节转换
 
 ```moonbit
 // 将 ULID 转换为字节
-let bytes = Ulid.to_bytes(ulid)
+let bytes = ulid.to_bytes()
 
 // 从字节创建 ULID
-let ulid = Ulid.from_bytes(bytes)
+let result = Ulid::from_bytes(bytes)
 ```
 
 ### UUID 操作
 
 ```moonbit
+// 解析 UUID
+let uuid = Uuid::parse("00112233-4455-6677-8899-aabbccddeeff")
+
 // 获取 UUID 版本
-let version = Uuid.version(uuid)
+let version = uuid.version()
 
 // 检查 RFC 变体
-let is_rfc = Uuid.is_rfc_variant(uuid)
+let is_rfc = uuid.is_rfc_variant()
 ```
 
 ## 错误处理
@@ -144,6 +150,7 @@ let is_rfc = Uuid.is_rfc_variant(uuid)
 - `InvalidCharacter` - 输入包含无效字符
 - `TimestampOverflow` - 时间戳超过 48 位限制
 - `InvalidByteLength` - 字节数组长度错误
+- `InvalidUuidFormat` - UUID 格式错误
 - `UnsupportedUuidVersion` - 不支持的 UUID 版本
 - `UnsupportedUuidVariant` - 不支持的 UUID 变体
 - `UuidTimestampOutOfRange` - UUID 时间戳超出有效范围
@@ -153,7 +160,8 @@ let is_rfc = Uuid.is_rfc_variant(uuid)
 该库为所有已实现的功能提供了全面的测试覆盖：
 
 ```bash
-moon test
+moon test src
+moon run cmd/main
 ```
 
 ## 贡献
@@ -171,11 +179,11 @@ Apache-2.0
 
 ## 未来增强
 
-- 完整的 Base32 编码/解码实现
-- 真实的随机数生成
-- 真实的时间戳获取
 - UUID v6 到 ULID 的转换
+- 批量 API
+- 单调生成器
+- RFC3339 和 Unix 时间格式转换
 - 其他 UUID 版本支持
 - 性能优化
 - Wasm 绑定
-- CLI 工具
+- CLI 扩展功能
