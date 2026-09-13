@@ -1,0 +1,49 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "username/moon_ulid/src"
+
+// Values
+
+// Errors
+
+// Types and methods
+pub struct Ulid {
+  timestamp : UInt64
+  randomness : Bytes
+}
+pub fn Ulid::from_bytes(Bytes) -> Result[Self, UlidError]
+pub fn Ulid::from_parts(UInt64, Bytes) -> Result[Self, UlidError]
+pub fn Ulid::generate() -> Result[Self, UlidError]
+pub fn Ulid::generate_at(UInt64) -> Result[Self, UlidError]
+pub fn Ulid::is_valid(String) -> Bool
+pub fn Ulid::parse(String) -> Result[Self, UlidError]
+pub fn Ulid::timestamp_ms(Self) -> UInt64
+pub fn Ulid::timestamp_seconds(Self) -> UInt64
+pub fn Ulid::to_bytes(Self) -> Bytes
+pub fn Ulid::to_string(Self) -> String
+
+pub enum UlidError {
+  InvalidLength(Int, Int)
+  InvalidCharacter(Int, Char)
+  InvalidLeadingValue
+  TimestampOverflow(UInt64)
+  InvalidByteLength(Int, Int)
+  InvalidUuidFormat
+  UnsupportedUuidVersion(Int)
+  UnsupportedUuidVariant
+  UuidTimestampOutOfRange(UInt64)
+}
+pub fn UlidError::code(Self) -> String
+pub fn UlidError::message(Self) -> String
+
+pub struct Uuid {
+  bytes : Bytes
+}
+pub fn Uuid::is_rfc_variant(Self) -> Bool
+pub fn Uuid::parse(String) -> Result[Self, UlidError]
+pub fn Uuid::to_string(Self) -> String
+pub fn Uuid::version(Self) -> Int
+
+// Type aliases
+
+// Traits
+

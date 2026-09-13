@@ -1,45 +1,22 @@
-///| 
-/// ULID 创建和验证测试
-///| 
-fn test_ulid_from_parts() {
-  let timestamp = 1720000000000
-  let randomness = Bytes::make(10)
-  for i in 0..10 {
-    randomness[i] = UInt8.from_int(i)
-  }
-  
-  let result = Ulid.from_parts(timestamp, randomness)
-  assert_true(result.is_ok())
+/// ULID 创建和合法性校验测试。
+///
+///|
+test "from_parts validates timestamp and randomness" {
+  let valid = Ulid::from_parts(0xFFFFFFFFFFFF, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  assert_true(valid is Ok(_))
+
+  let bad_randomness = Ulid::from_parts(1, [0, 1, 2])
+  assert_true(bad_randomness is Err(UlidError::InvalidByteLength(10, 3)))
+
+  let bad_timestamp = Ulid::from_parts(281474976710656, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+  assert_true(bad_timestamp is Err(UlidError::TimestampOverflow(281474976710656)))
 }
 
-fn test_ulid_from_parts_invalid_length() {
-  let timestamp = 1720000000000
-  let randomness = Bytes::make(9) // 无效长度
-  
-  let result = Ulid.from_parts(timestamp, randomness)
-  assert_true(result.is_err())
-  assert_eq(UlidError.code(result.unwrap_err()), "INVALID_BYTE_LENGTH")
-}
-
-fn test_ulid_from_parts_timestamp_overflow() {
-  let timestamp = 0xFFFFFFFFFFFF + 1 // 溢出时间戳
-  let randomness = Bytes::make(10)
-  
-  let result = Ulid.from_parts(timestamp, randomness)
-  assert_true(result.is_err())
-  assert_eq(UlidError.code(result.unwrap_err()), "TIMESTAMP_OVERFLOW")
-}
-
-fn test_ulid_is_valid() {
-  let valid_str = "01H2J3K4L5M6N7P8Q9R"
-  let invalid_str = "01H2J3K4L5M6N7P8Q9X" // 包含无效字符
-  
-  assert_true(Ulid.is_valid(valid_str))
-  assert_false(Ulid.is_valid(invalid_str))
-}
-
-fn test_ulid_is_valid_invalid_length() {
-  let invalid_str = "01H2J3K4L5M6N7P8Q9" // 长度不足
-  
-  assert_false(Ulid.is_valid(invalid_str))
+///|
+test "is_valid checks length alphabet and leading value" {
+  assert_true(Ulid::is_valid("00000000000000000000000000"))
+  assert_true(Ulid::is_valid("7ZZZZZZZZZZZZZZZZZZZZZZZZZ"))
+  assert_false(Ulid::is_valid("80000000000000000000000000"))
+  assert_false(Ulid::is_valid("0000000000000000000000000"))
+  assert_false(Ulid::is_valid("0000000000000000000000000I"))
 }

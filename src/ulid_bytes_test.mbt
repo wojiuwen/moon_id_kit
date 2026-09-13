@@ -1,54 +1,24 @@
-///| 
-/// ULID 字节转换测试
-///| 
-fn test_ulid_to_bytes() {
-  let timestamp = 1720000000000
-  let randomness = Bytes::make(10)
-  for i in 0..10 {
-    randomness[i] = UInt8.from_int(i)
+/// ULID 字节序列化测试。
+///
+///|
+test "to_bytes uses big endian and round trips" {
+  let value = match Ulid::from_parts(0x010203040506, [0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xA0]) {
+    Ok(value) => value
+    Err(error) => fail(error.message())
   }
-  
-  let ulid = Ulid.from_parts(timestamp, randomness).unwrap()
-  let bytes = Ulid.to_bytes(ulid)
-  
-  assert_eq(bytes.length(), 16)
+  let expected : Bytes = [0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80, 0x90, 0xA0]
+  assert_eq(value.to_bytes(), expected)
+
+  let restored = match Ulid::from_bytes(expected) {
+    Ok(value) => value
+    Err(error) => fail(error.message())
+  }
+  assert_eq(restored.to_bytes(), expected)
+  assert_eq(restored.timestamp_ms(), 0x010203040506)
 }
 
-fn test_ulid_from_bytes() {
-  let bytes = Bytes::make(16)
-  bytes[0] = 0x01
-  bytes[1] = 0x02
-  bytes[2] = 0x03
-  bytes[3] = 0x04
-  bytes[4] = 0x05
-  bytes[5] = 0x06
-  for i in 0..10 {
-    bytes[6 + i] = UInt8.from_int(i)
-  }
-  
-  let result = Ulid.from_bytes(bytes)
-  assert_true(result.is_ok())
-}
-
-fn test_ulid_from_bytes_invalid_length() {
-  let bytes = Bytes::make(15) // 无效长度
-  
-  let result = Ulid.from_bytes(bytes)
-  assert_true(result.is_err())
-  assert_eq(UlidError.code(result.unwrap_err()), "INVALID_BYTE_LENGTH")
-}
-
-fn test_ulid_bytes_roundtrip() {
-  let timestamp = 1720000000000
-  let randomness = Bytes::make(10)
-  for i in 0..10 {
-    randomness[i] = UInt8.from_int(i)
-  }
-  
-  let ulid = Ulid.from_parts(timestamp, randomness).unwrap()
-  let bytes = Ulid.to_bytes(ulid)
-  let ulid2 = Ulid.from_bytes(bytes).unwrap()
-  
-  assert_eq(ulid.timestamp, ulid2.timestamp)
-  assert_eq(ulid.randomness.length(), ulid2.randomness.length())
+///|
+test "from_bytes rejects invalid length" {
+  let result = Ulid::from_bytes([0, 1, 2])
+  assert_true(result is Err(UlidError::InvalidByteLength(16, 3)))
 }

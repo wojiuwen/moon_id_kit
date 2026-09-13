@@ -1,21 +1,29 @@
-///| 
-/// ULID 生成器测试
-///| 
-fn test_ulid_generate() {
-  let result = Ulid.generate()
-  assert_true(result.is_ok())
-}
-
-fn test_ulid_generate_at() {
-  let timestamp = 1720000000000
-  let result = Ulid.generate_at(timestamp)
-  assert_true(result.is_ok())
-}
-
-fn test_generate_random_bytes() {
-  let randomness = generate_random_bytes()
-  assert_eq(randomness.length(), 10)
-  for i in 0..10 {
-    assert_eq(randomness[i], UInt8.from_int(i))
+/// ULID 生成器测试。
+///
+///|
+test "generate_at preserves timestamp and creates valid ULID" {
+  let result = Ulid::generate_at(1700000000123)
+  let value = match result {
+    Ok(value) => value
+    Err(error) => fail(error.message())
   }
+  assert_eq(value.timestamp_ms(), 1700000000123)
+  assert_true(Ulid::is_valid(value.to_string()))
+  assert_eq(value.to_bytes().length(), 16)
+}
+
+///|
+test "generate_at rejects timestamp overflow" {
+  let result = Ulid::generate_at(281474976710656)
+  assert_true(result is Err(UlidError::TimestampOverflow(281474976710656)))
+}
+
+///|
+test "generate uses current timestamp" {
+  let result = Ulid::generate()
+  let value = match result {
+    Ok(value) => value
+    Err(error) => fail(error.message())
+  }
+  assert_true(Ulid::is_valid(value.to_string()))
 }

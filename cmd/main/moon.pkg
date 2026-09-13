@@ -1,0 +1,7 @@
+import {
+  "username/moon_ulid/src",
+}
+
+options(
+  is_main: true,
+)

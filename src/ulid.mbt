@@ -1,38 +1,45 @@
 ///| 
 /// ULID 核心实现
-///| 
+
+///|
 pub struct Ulid {
   timestamp : UInt64
   randomness : Bytes
 }
 
+///|
 pub enum UlidError {
-  InvalidLength(expected : Int, actual : Int)
-  InvalidCharacter(position : Int, character : Char)
+  InvalidLength(Int, Int)
+  InvalidCharacter(Int, Char)
   InvalidLeadingValue
-  TimestampOverflow(value : UInt64)
-  InvalidByteLength(expected : Int, actual : Int)
+  TimestampOverflow(UInt64)
+  InvalidByteLength(Int, Int)
   InvalidUuidFormat
-  UnsupportedUuidVersion(version : Int)
+  UnsupportedUuidVersion(Int)
   UnsupportedUuidVariant
-  UuidTimestampOutOfRange(value : UInt64)
+  UuidTimestampOutOfRange(UInt64)
 }
 
-pub fn UlidError.message(self : UlidError) -> String {
+///|
+pub fn UlidError::message(self : UlidError) -> String {
   match self {
-    InvalidLength(expected, actual) => "Invalid length: expected ${expected}, got ${actual}"
-    InvalidCharacter(position, character) => "Invalid character at position ${position}: '${character}'"
+    InvalidLength(expected, actual) =>
+      "Invalid length: expected \{expected}, got \{actual}"
+    InvalidCharacter(position, character) =>
+      "Invalid character at position \{position}: '\{character}'"
     InvalidLeadingValue => "Invalid leading value"
-    TimestampOverflow(value) => "Timestamp overflow: ${value}"
-    InvalidByteLength(expected, actual) => "Invalid byte length: expected ${expected}, got ${actual}"
+    TimestampOverflow(value) => "Timestamp overflow: \{value}"
+    InvalidByteLength(expected, actual) =>
+      "Invalid byte length: expected \{expected}, got \{actual}"
     InvalidUuidFormat => "Invalid UUID format"
-    UnsupportedUuidVersion(version) => "Unsupported UUID version: ${version}"
+    UnsupportedUuidVersion(version) => "Unsupported UUID version: \{version}"
     UnsupportedUuidVariant => "Unsupported UUID variant"
-    UuidTimestampOutOfRange(value) => "UUID timestamp out of range: ${value}"
+    UuidTimestampOutOfRange(value) => "UUID timestamp out of range: \{value}"
   }
 }
 
-pub fn UlidError.code(self : UlidError) -> String {
+///|
+pub fn UlidError::code(self : UlidError) -> String {
   match self {
     InvalidLength(_, _) => "INVALID_LENGTH"
     InvalidCharacter(_, _) => "INVALID_CHARACTER"
@@ -44,4 +51,14 @@ pub fn UlidError.code(self : UlidError) -> String {
     UnsupportedUuidVariant => "UNSUPPORTED_UUID_VARIANT"
     UuidTimestampOutOfRange(_) => "UUID_TIMESTAMP_OUT_OF_RANGE"
   }
+}
+
+///|
+pub fn Ulid::timestamp_ms(self : Ulid) -> UInt64 {
+  self.timestamp
+}
+
+///|
+pub fn Ulid::timestamp_seconds(self : Ulid) -> UInt64 {
+  self.timestamp / 1000
 }
