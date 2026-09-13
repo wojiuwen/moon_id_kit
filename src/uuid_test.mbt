@@ -31,3 +31,35 @@ test "UUID rejects unsupported formats" {
   assert_true(Uuid::parse("{00112233-4455-6677-8899-aabbccddeeff}") is Err(UlidError::InvalidUuidFormat))
   assert_true(Uuid::parse("00112233-4455-6677-8899-aabbccddeefg") is Err(UlidError::InvalidUuidFormat))
 }
+
+///|
+test "UUID v6 converts to ULID" {
+  let uuid = match Uuid::parse("1ee833b0-4c28-64b0-8123-456789abcdef") {
+    Ok(value) => value
+    Err(error) => fail(error.message())
+  }
+  let ulid = match Ulid::from_uuid_v6(uuid) {
+    Ok(value) => value
+    Err(error) => fail(error.message())
+  }
+  assert_eq(ulid.timestamp_ms(), 1700000000123)
+  assert_eq(
+    ulid.to_bytes(),
+    [0x01, 0x8B, 0xCF, 0xE5, 0x68, 0x7B, 0x04, 0x8D, 0x15, 0x9E, 0x26, 0xAF, 0x37, 0xBC, 0x00, 0x00],
+  )
+}
+
+///|
+test "UUID v6 conversion validates version and variant" {
+  let version_error = match Uuid::parse("00112233-4455-4677-8899-aabbccddeeff") {
+    Ok(uuid) => Ulid::from_uuid_v6(uuid)
+    Err(error) => Result::Err(error)
+  }
+  assert_true(version_error is Err(UlidError::UnsupportedUuidVersion(4)))
+
+  let variant_error = match Uuid::parse("1ee833b0-4c28-64b0-c123-456789abcdef") {
+    Ok(uuid) => Ulid::from_uuid_v6(uuid)
+    Err(error) => Result::Err(error)
+  }
+  assert_true(variant_error is Err(UlidError::UnsupportedUuidVariant))
+}

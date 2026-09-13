@@ -12,6 +12,7 @@ pub struct Ulid {
 }
 pub fn Ulid::from_bytes(Bytes) -> Result[Self, UlidError]
 pub fn Ulid::from_parts(UInt64, Bytes) -> Result[Self, UlidError]
+pub fn Ulid::from_uuid_v6(Uuid) -> Result[Self, UlidError]
 pub fn Ulid::generate() -> Result[Self, UlidError]
 pub fn Ulid::generate_at(UInt64) -> Result[Self, UlidError]
 pub fn Ulid::is_valid(String) -> Bool

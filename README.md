@@ -23,8 +23,10 @@ MoonBit 语言实现的 ULID (Universally Unique Lexicographically Sortable Iden
    - 结构化错误处理的消息和代码
 
 2. **UUID 核心操作**
+   - `Uuid.parse(value)` / `Uuid.to_string()` - UUID 字符串解析和格式化
    - `Uuid.version()` - 提取 UUID 版本（支持 v6）
    - `Uuid.is_rfc_variant()` - 检查 UUID 是否使用 RFC 4122 变体
+   - `Ulid.from_uuid_v6(value)` - 将 UUID v6 转换为 ULID
 
 3. **ULID 生成**
    - `Ulid.generate()` - 使用当前时间戳生成 ULID
@@ -53,7 +55,6 @@ MoonBit 语言实现的 ULID (Universally Unique Lexicographically Sortable Iden
 
 ### 🚧 开发中
 
-- UUID v6 到 ULID 的转换
 - 批量生成 API
 - Wasm JavaScript 接口
 - CLI 扩展功能
@@ -140,6 +141,9 @@ let version = uuid.version()
 
 // 检查 RFC 变体
 let is_rfc = uuid.is_rfc_variant()
+
+// 将 UUID v6 转换为 ULID
+let result = Ulid::from_uuid_v6(uuid)
 ```
 
 ## 错误处理
@@ -179,7 +183,6 @@ Apache-2.0
 
 ## 未来增强
 
-- UUID v6 到 ULID 的转换
 - 批量 API
 - 单调生成器
 - RFC3339 和 Unix 时间格式转换

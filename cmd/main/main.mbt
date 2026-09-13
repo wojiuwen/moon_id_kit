@@ -67,8 +67,18 @@ fn main {
     Err(error) => println("UUID 解析失败：" + error.message())
   }
 
+  // Ulid::from_uuid_v6：将 RFC 变体的 UUID v6 转换为确定性的 ULID。
+  println("8. UUID v6 转 ULID：")
+  match @src.Uuid::parse("1ee833b0-4c28-64b0-8123-456789abcdef") {
+    Ok(uuid) => match @src.Ulid::from_uuid_v6(uuid) {
+      Ok(ulid) => println("转换结果：" + ulid.to_string())
+      Err(error) => println("转换失败：" + error.message())
+    }
+    Err(error) => println("UUID 解析失败：" + error.message())
+  }
+
   // UlidError：非法输入返回结构化错误，可读取 code 和 message。
-  println("8. 结构化错误：")
+  println("9. 结构化错误：")
   match @src.Ulid::parse("invalid") {
     Ok(_) => println("意外成功")
     Err(error) => {
