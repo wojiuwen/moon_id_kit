@@ -20,6 +20,36 @@ pub enum UlidError {
   UuidTimestampOutOfRange(UInt64)
 }
 
+pub enum IdError {
+  InvalidSize(Int)
+  InvalidIdLength(Int, Int)
+  InvalidIdCharacter(Int, Char)
+  InvalidIdFormat
+  IdTimestampOutOfRange(UInt64)
+}
+
+pub fn IdError::message(self : IdError) -> String {
+  match self {
+    InvalidSize(size) => "Invalid ID size: \{size}"
+    InvalidIdLength(expected, actual) =>
+      "Invalid ID length: expected \{expected}, got \{actual}"
+    InvalidIdCharacter(position, character) =>
+      "Invalid ID character at position \{position}: '\{character}'"
+    InvalidIdFormat => "Invalid ID format"
+    IdTimestampOutOfRange(value) => "ID timestamp out of range: \{value}"
+  }
+}
+
+pub fn IdError::code(self : IdError) -> String {
+  match self {
+    InvalidSize(_) => "INVALID_SIZE"
+    InvalidIdLength(_, _) => "INVALID_ID_LENGTH"
+    InvalidIdCharacter(_, _) => "INVALID_ID_CHARACTER"
+    InvalidIdFormat => "INVALID_ID_FORMAT"
+    IdTimestampOutOfRange(_) => "ID_TIMESTAMP_OUT_OF_RANGE"
+  }
+}
+
 ///|
 pub fn UlidError::message(self : UlidError) -> String {
   match self {

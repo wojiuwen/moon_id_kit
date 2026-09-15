@@ -1,192 +1,196 @@
-# mbt-ulid
+# mbt-id
 
-MoonBit 语言实现的 ULID (Universally Unique Lexicographically Sortable Identifier) 库。
+使用 MoonBit 编写的多类型唯一标识符库，当前支持 ULID、UUID、NanoID、KSUID、CUID 和 CUID2。
 
-## 概述
+## 功能概览
 
-`mbt-ulid` 是一个用 MoonBit 语言编写的 ULID 生成和操作库。ULID 是 128 位标识符，具有以下特点：
+| 类型 | 主要能力 |
+| --- | --- |
+| `Ulid` | 生成、解析、校验、字节转换、时间读取 |
+| `Uuid` | v4/v7 生成、标准/紧凑/URN 解析、字节转换、版本和变体读取 |
+| `MonotonicUlidGenerator` | 在同一实例内生成按字节序单调递增的 ULID |
+| `NanoId` | 生成和解析 URL 安全的短随机 ID |
+| `Ksuid` | 生成和解析带秒级时间戳的 160 位 ID |
+| `Cuid` | 生成和解析固定 25 字符的 `c` 前缀 ID |
+| `Cuid2` | 生成和解析固定 24 字符的小写 ID |
 
-- **全局唯一性**：像 UUID 一样，ULID 设计为全局唯一
-- **字典序可排序**：ULID 可以通过其字符串表示进行排序
-- **URL 安全**：ULID 使用 Crockford 的 Base32 编码，提供紧凑且 URL 安全的表示
+所有可能失败的解析、创建和生成操作都返回结构化 `Result`。完整 API 约定请参阅 [api-v1.md](api-v1.md)。
 
-## 当前开发状态
+## 已实现 API
 
-本库正在积极开发中，以下功能已实现：
-
-### ✅ 已完成功能
-
-1. **核心类型和错误处理**
-   - `Ulid` 结构体，包含时间戳和随机数据字段
-   - `Uuid` 结构体，用于 UUID 操作
-   - `UlidError` 枚举，包含全面的错误类型
-   - 结构化错误处理的消息和代码
-
-2. **UUID 核心操作**
-   - `Uuid.parse(value)` / `Uuid.to_string()` - UUID 字符串解析和格式化
-   - `Uuid.version()` - 提取 UUID 版本（支持 v6）
-   - `Uuid.is_rfc_variant()` - 检查 UUID 是否使用 RFC 4122 变体
-   - `Ulid.from_uuid_v6(value)` - 将 UUID v6 转换为 ULID
-
-3. **ULID 生成**
-   - `Ulid.generate()` - 使用当前时间戳生成 ULID
-   - `Ulid.generate_at(timestamp_ms)` - 使用指定时间戳生成 ULID
-   - 使用系统随机源生成 10 字节随机数据
-   - 使用系统环境获取当前 Unix 毫秒时间戳
-
-4. **ULID 创建和验证**
-   - `Ulid.from_parts(timestamp_ms, randomness)` - 从组件创建 ULID
-   - `Ulid.is_valid(value)` - 验证 ULID 字符串格式
-   - 字节长度验证（必须恰好为 10 字节）
-   - 时间戳溢出检查（48 位限制）
-
-5. **ULID 字符串转换**
-   - `Ulid.parse(value)` - 从字符串解析 ULID
-   - `Ulid.to_string()` - 将 ULID 转换为字符串
-   - Crockford Base32 字符验证
-   - 长度验证（必须恰好为 26 个字符）
-   - 字符位置错误报告
-
-6. **ULID 字节转换**
-   - `Ulid.to_bytes()` - 将 ULID 转换为 16 字节大端序格式
-   - `Ulid.from_bytes(value)` - 从 16 字节数组创建 ULID
-   - 字节长度验证（必须恰好为 16 字节）
-   - 时间戳和随机数据的提取/编码
-
-### 🚧 开发中
-
-- 批量生成 API
-- Wasm JavaScript 接口
-- CLI 扩展功能
-
-## API 文档
-
-完整的 API 规范请参阅 [api-v1.md](api-v1.md)。
-
-## 项目结构
-
-```
-moon_ulid/
-├── src/
-│   ├── ulid.mbt                    # ULID 核心类型和错误处理
-│   ├── uuid.mbt                    # UUID 类型和操作
-│   ├── ulid_generator.mbt          # ULID 生成函数
-│   ├── ulid_create.mbt             # ULID 创建和验证
-│   ├── ulid_string.mbt             # 字符串转换函数
-│   ├── ulid_bytes.mbt              # 字节转换函数
-│   ├── ulid_test.mbt               # ULID 核心测试
-│   ├── uuid_test.mbt               # UUID 测试
-│   ├── ulid_generator_test.mbt     # 生成器测试
-│   ├── ulid_create_test.mbt        # 创建测试
-│   ├── ulid_string_test.mbt        # 字符串转换测试
-│   └── ulid_bytes_test.mbt         # 字节转换测试
-├── cmd/
-│   └── main/
-│       ├── main.mbt                # 核心功能演示程序
-│       └── moon.pkg                # 可执行包配置
-├── api-v1.md                       # API 规范
-├── moon.mod.json                   # 模块配置
-└── README.md                       # 本文件
-```
-
-## 使用示例
-
-### 创建 ULID
+### ULID
 
 ```moonbit
-// 使用当前时间戳生成 ULID
-let result = Ulid::generate()
+let generated = Ulid::generate()
+let fixed_time = Ulid::generate_at(1720000000000)
 
-// 使用指定时间戳生成 ULID
-let result = Ulid::generate_at(1720000000000)
-
-// 从组件创建 ULID
-let timestamp = 1720000000000
 let randomness : Bytes = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-let result = Ulid::from_parts(timestamp, randomness)
+let from_parts = Ulid::from_parts(1720000000000, randomness)
+
+let parsed = Ulid::parse("01HF7YAT3V008J4CT4ANK7F24S")
+let valid = Ulid::is_valid("01HF7YAT3V008J4CT4ANK7F24S")
+let batch = Ulid::generate_many(3)
 ```
 
-### 字符串转换
+ULID 使用 Crockford Base32 字符串表示，字符串长度固定为 26 个字符，字节表示固定为 16 字节。解析接受大小写输入，格式化始终输出大写。
+
+### 单调 ULID
 
 ```moonbit
-// 从字符串解析 ULID
-let ulid_str = "01HF7YAT3V008J4CT4ANK7F24S"
-let result = Ulid::parse(ulid_str)
-
-// 将 ULID 转换为字符串
-let ulid_str = ulid.to_string()
-
-// 验证 ULID 字符串
-let is_valid = Ulid::is_valid("01HF7YAT3V008J4CT4ANK7F24S")
+let generator = MonotonicUlidGenerator::new()
+let first = generator.generate_at(1720000000000)
+let second = generator.generate_at(1720000000000)
+let batch = generator.generate_many(3)
 ```
 
-### 字节转换
+同一个生成器实例会在时间戳相同或回退时递增随机部分；时间戳前进时使用新的时间戳。不同实例之间不保证全局单调性或线程安全性。
+
+### UUID
 
 ```moonbit
-// 将 ULID 转换为字节
-let bytes = ulid.to_bytes()
-
-// 从字节创建 ULID
-let result = Ulid::from_bytes(bytes)
+let uuid = Uuid::generate_v4()
+let uuid_v7 = Uuid::generate_v7(1720000000000)
+let parsed = Uuid::parse("00112233-4455-6677-8899-aabbccddeeff")
+let compact = Uuid::parse_compact("00112233445566778899aabbccddeeff")
+let urn = Uuid::parse_urn("urn:uuid:00112233445566778899aabbccddeeff")
 ```
 
-### UUID 操作
+当前支持标准 36 字符、32 字符紧凑格式和 `urn:uuid:` 格式，并提供：
 
 ```moonbit
-// 解析 UUID
-let uuid = Uuid::parse("00112233-4455-6677-8899-aabbccddeeff")
-
-// 获取 UUID 版本
-let version = uuid.version()
-
-// 检查 RFC 变体
-let is_rfc = uuid.is_rfc_variant()
-
-// 将 UUID v6 转换为 ULID
-let result = Ulid::from_uuid_v6(uuid)
+uuid.to_string()
+uuid.version()
+uuid.is_rfc_variant()
+uuid.is_version(4)
+uuid.is_valid(uuid.to_string())
+uuid.to_bytes()
+Uuid::from_bytes(uuid.to_bytes())
+Uuid::parse_any(uuid.to_string())
 ```
+
+`Uuid::generate_v7` 使用 Unix 毫秒时间戳，`uuid_v7.timestamp_ms()` 可以读取时间字段。`Uuid::generate_many(count)` 可以批量生成 UUID v4。
+
+UUID v6 可以转换为 ULID：
+
+```moonbit
+let result = match Uuid::parse("1ee833b0-4c28-64b0-8123-456789abcdef") {
+  Ok(value) => Ulid::from_uuid_v6(value)
+  Err(error) => Result::Err(error)
+}
+```
+
+### NanoID
+
+```moonbit
+let default_id = NanoId::generate()
+let custom_id = NanoId::generate_with_size(32)
+let parsed = NanoId::parse("V1StGXR8_Z5jdHi6B-myT")
+```
+
+NanoID 默认长度为 21，使用 64 个 URL 安全字符：`_-0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ`。
+`NanoId::generate_many(count)` 可以批量生成默认长度的 NanoID。
+
+### KSUID
+
+```moonbit
+let generated = Ksuid::generate()
+let fixed_time = Ksuid::generate_at(1700000000)
+
+match generated {
+  Ok(value) => {
+    let text = value.to_string()
+    let timestamp = value.timestamp_seconds()
+    Ksuid::parse(text)
+  }
+  Err(error) => Result::Err(error)
+}
+```
+
+KSUID 使用 20 字节数据和 27 字符 Base62 编码。时间戳使用 KSUID epoch，即 Unix 时间戳 `1400000000` 之后的秒数。
+KSUID 还支持 `to_bytes()`、`from_bytes()`、`is_valid()` 和 `generate_many(count)`。
+
+### CUID 和 CUID2
+
+```moonbit
+let cuid = Cuid::generate()
+let cuid2 = Cuid2::generate()
+
+let parsed_cuid = Cuid::parse("cabcdefghijklmnopqrstuvwx")
+let parsed_cuid2 = Cuid2::parse("abcdefghijklmnopqrstuvwx")
+```
+
+当前格式约定：
+
+- `Cuid` 固定 25 个字符，以 `c` 开头，后续使用小写 Base36 字符。
+- `Cuid2` 固定 24 个字符，首字符为小写字母，其余字符使用小写 Base36 字符。
+- CUID 和 CUID2 使用独立类型和解析器，不互相隐式转换。
+- `Cuid::generate_many(count)` 和 `Cuid2::generate_many(count)` 支持批量生成。
 
 ## 错误处理
 
-所有可能失败的操作都会返回 `Result[Ulid, UlidError]` 或类似类型。错误类型包括：
+ULID 和 UUID 操作使用 `UlidError`，NanoID、KSUID、CUID 和 CUID2 使用 `IdError`。
 
-- `InvalidLength` - 输入长度错误
-- `InvalidCharacter` - 输入包含无效字符
-- `TimestampOverflow` - 时间戳超过 48 位限制
-- `InvalidByteLength` - 字节数组长度错误
-- `InvalidUuidFormat` - UUID 格式错误
-- `UnsupportedUuidVersion` - 不支持的 UUID 版本
-- `UnsupportedUuidVariant` - 不支持的 UUID 变体
-- `UuidTimestampOutOfRange` - UUID 时间戳超出有效范围
+常见错误包括：
 
-## 测试
+- `InvalidLength`、`InvalidIdLength`：输入长度错误
+- `InvalidCharacter`、`InvalidIdCharacter`：包含不支持的字符
+- `InvalidLeadingValue`：ULID 首字符超出允许范围
+- `InvalidSize`：NanoID 长度不合法
+- `InvalidUuidFormat`、`InvalidIdFormat`：输入格式错误
+- `TimestampOverflow`、`IdTimestampOutOfRange`：时间戳超出支持范围
+- `UnsupportedUuidVersion`：UUID 版本不受支持
+- `UnsupportedUuidVariant`：UUID 变体不受支持
 
-该库为所有已实现的功能提供了全面的测试覆盖：
+错误可以通过 `message()` 获取可读信息，通过 `code()` 获取稳定错误代码。
+
+## 项目结构
+
+```text
+moon_id_kid/
+├── src/
+│   ├── ulid.mbt                 # ULID、UlidError 和 IdError
+│   ├── ulid_generator.mbt       # 普通 ULID 生成
+│   ├── ulid_monotonic.mbt       # 单调 ULID 生成器
+│   ├── ulid_create.mbt          # ULID 创建和校验
+│   ├── ulid_string.mbt         # ULID 字符串转换
+│   ├── ulid_bytes.mbt          # ULID 字节转换
+│   ├── uuid.mbt                # UUID 操作
+│   ├── ulid_uuid.mbt           # UUID v6 转 ULID
+│   ├── nanoid.mbt              # NanoID
+│   ├── ksuid.mbt               # KSUID
+│   └── cuid.mbt                # CUID 和 CUID2
+├── cmd/main/                   # 演示程序
+├── api-v1.md                   # API 规范
+├── moon.mod.json               # 模块配置
+└── README.md
+```
+
+## 测试和运行
+
+运行全部测试：
+
+```bash
+moon test
+```
+
+运行源代码包测试：
 
 ```bash
 moon test src
-moon run cmd/main
 ```
 
-## 贡献
+运行演示程序：
 
-本项目正在积极开发中，欢迎贡献！
+```bash
+moon run cmd/main
+```
 
 ## 许可证
 
 Apache-2.0
 
-## 致谢
+## 相关规范
 
-- ULID 规范：[https://github.com/ulid/spec](https://github.com/ulid/spec)
-- Crockford 的 Base32 编码
-
-## 未来增强
-
-- 批量 API
-- 单调生成器
-- RFC3339 和 Unix 时间格式转换
-- 其他 UUID 版本支持
-- 性能优化
-- Wasm 绑定
-- CLI 扩展功能
+- [ULID Specification](https://github.com/ulid/spec)
+- [KSUID Specification](https://github.com/segmentio/ksuid)
+- [Nano ID](https://github.com/ai/nanoid)

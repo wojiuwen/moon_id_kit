@@ -6,6 +6,67 @@ package "username/moon_ulid/src"
 // Errors
 
 // Types and methods
+pub struct Cuid {
+  value : String
+}
+pub fn Cuid::generate() -> Result[Self, IdError]
+pub fn Cuid::generate_many(Int) -> Result[Array[Self], IdError]
+pub fn Cuid::is_valid(String) -> Bool
+pub fn Cuid::parse(String) -> Result[Self, IdError]
+pub fn Cuid::to_string(Self) -> String
+
+pub struct Cuid2 {
+  value : String
+}
+pub fn Cuid2::generate() -> Result[Self, IdError]
+pub fn Cuid2::generate_many(Int) -> Result[Array[Self], IdError]
+pub fn Cuid2::is_valid(String) -> Bool
+pub fn Cuid2::parse(String) -> Result[Self, IdError]
+pub fn Cuid2::to_string(Self) -> String
+
+pub enum IdError {
+  InvalidSize(Int)
+  InvalidIdLength(Int, Int)
+  InvalidIdCharacter(Int, Char)
+  InvalidIdFormat
+  IdTimestampOutOfRange(UInt64)
+}
+pub fn IdError::code(Self) -> String
+pub fn IdError::message(Self) -> String
+
+pub struct Ksuid {
+  bytes : Bytes
+}
+pub fn Ksuid::from_bytes(Bytes) -> Result[Self, IdError]
+pub fn Ksuid::generate() -> Result[Self, IdError]
+pub fn Ksuid::generate_at(UInt64) -> Result[Self, IdError]
+pub fn Ksuid::generate_many(Int) -> Result[Array[Self], IdError]
+pub fn Ksuid::is_valid(String) -> Bool
+pub fn Ksuid::parse(String) -> Result[Self, IdError]
+pub fn Ksuid::timestamp_seconds(Self) -> UInt64
+pub fn Ksuid::to_bytes(Self) -> Bytes
+pub fn Ksuid::to_string(Self) -> String
+
+pub struct MonotonicUlidGenerator {
+  mut last_timestamp : UInt64
+  mut randomness : Bytes
+  mut initialized : Bool
+}
+pub fn MonotonicUlidGenerator::generate(Self) -> Result[Ulid, UlidError]
+pub fn MonotonicUlidGenerator::generate_at(Self, UInt64) -> Result[Ulid, UlidError]
+pub fn MonotonicUlidGenerator::generate_many(Self, Int) -> Result[Array[Ulid], UlidError]
+pub fn MonotonicUlidGenerator::new() -> Self
+
+pub struct NanoId {
+  value : String
+}
+pub fn NanoId::generate() -> Result[Self, IdError]
+pub fn NanoId::generate_many(Int) -> Result[Array[Self], IdError]
+pub fn NanoId::generate_with_size(Int) -> Result[Self, IdError]
+pub fn NanoId::is_valid(String) -> Bool
+pub fn NanoId::parse(String) -> Result[Self, IdError]
+pub fn NanoId::to_string(Self) -> String
+
 pub struct Ulid {
   timestamp : UInt64
   randomness : Bytes
@@ -15,6 +76,7 @@ pub fn Ulid::from_parts(UInt64, Bytes) -> Result[Self, UlidError]
 pub fn Ulid::from_uuid_v6(Uuid) -> Result[Self, UlidError]
 pub fn Ulid::generate() -> Result[Self, UlidError]
 pub fn Ulid::generate_at(UInt64) -> Result[Self, UlidError]
+pub fn Ulid::generate_many(Int) -> Result[Array[Self], UlidError]
 pub fn Ulid::is_valid(String) -> Bool
 pub fn Ulid::parse(String) -> Result[Self, UlidError]
 pub fn Ulid::timestamp_ms(Self) -> UInt64
@@ -39,8 +101,20 @@ pub fn UlidError::message(Self) -> String
 pub struct Uuid {
   bytes : Bytes
 }
+pub fn Uuid::from_bytes(Bytes) -> Result[Self, UlidError]
+pub fn Uuid::generate() -> Self
+pub fn Uuid::generate_many(Int) -> Result[Array[Self], UlidError]
+pub fn Uuid::generate_v4() -> Self
+pub fn Uuid::generate_v7(UInt64) -> Result[Self, UlidError]
 pub fn Uuid::is_rfc_variant(Self) -> Bool
+pub fn Uuid::is_valid(String) -> Bool
+pub fn Uuid::is_version(Self, Int) -> Bool
 pub fn Uuid::parse(String) -> Result[Self, UlidError]
+pub fn Uuid::parse_any(String) -> Result[Self, UlidError]
+pub fn Uuid::parse_compact(String) -> Result[Self, UlidError]
+pub fn Uuid::parse_urn(String) -> Result[Self, UlidError]
+pub fn Uuid::timestamp_ms(Self) -> UInt64
+pub fn Uuid::to_bytes(Self) -> Bytes
 pub fn Uuid::to_string(Self) -> String
 pub fn Uuid::version(Self) -> Int
 

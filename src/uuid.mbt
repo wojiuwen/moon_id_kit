@@ -5,6 +5,121 @@ pub struct Uuid {
   bytes : Bytes
 }
 
+pub fn Uuid::generate() -> Uuid {
+  Uuid::generate_v4()
+}
+
+pub fn Uuid::generate_v4() -> Uuid {
+  let random = @random.Rand::new()
+  let bytes : Array[Byte] = [
+    for _ in 0..<16 => random.uint64().to_byte()
+  ]
+  bytes[6] = ((bytes[6].to_int() & 0x0F) | 0x40).to_byte()
+  bytes[8] = ((bytes[8].to_int() & 0x3F) | 0x80).to_byte()
+  Uuid::{ bytes: Bytes::from_array(bytes) }
+}
+
+pub fn Uuid::generate_v7(timestamp_ms : UInt64) -> Result[Uuid, UlidError] {
+  if timestamp_ms > 0xFFFFFFFFFFFF {
+    return Result::Err(TimestampOverflow(timestamp_ms))
+  }
+  let random = @random.Rand::new()
+  let bytes : Array[Byte] = [
+    for _ in 0..<16 => random.uint64().to_byte()
+  ]
+  bytes[0] = (timestamp_ms >> 40).to_byte()
+  bytes[1] = (timestamp_ms >> 32).to_byte()
+  bytes[2] = (timestamp_ms >> 24).to_byte()
+  bytes[3] = (timestamp_ms >> 16).to_byte()
+  bytes[4] = (timestamp_ms >> 8).to_byte()
+  bytes[5] = timestamp_ms.to_byte()
+  bytes[6] = ((bytes[6].to_int() & 0x0F) | 0x70).to_byte()
+  bytes[8] = ((bytes[8].to_int() & 0x3F) | 0x80).to_byte()
+  Result::Ok(Uuid::{ bytes: Bytes::from_array(bytes) })
+}
+
+pub fn Uuid::generate_many(count : Int) -> Result[Array[Uuid], UlidError] {
+  if count < 0 {
+    return Result::Err(InvalidLength(0, count))
+  }
+  let output : Array[Uuid] = []
+  for _ in 0..<count {
+    output.push(Uuid::generate_v4())
+  }
+  Result::Ok(output)
+}
+
+pub fn Uuid::to_bytes(self : Uuid) -> Bytes {
+  self.bytes
+}
+
+pub fn Uuid::from_bytes(value : Bytes) -> Result[Uuid, UlidError] {
+  if value.length() != 16 {
+    return Result::Err(InvalidByteLength(16, value.length()))
+  }
+  Result::Ok(Uuid::{ bytes: value })
+}
+
+pub fn Uuid::parse_compact(value : String) -> Result[Uuid, UlidError] {
+  if value.length() != 32 {
+    return Result::Err(InvalidUuidFormat)
+  }
+  let output : Array[Char] = []
+  for index in 0..<32 {
+    output.push(value.get_char(index).unwrap())
+    if index == 7 || index == 11 || index == 15 || index == 19 {
+      output.push('-')
+    }
+  }
+  Uuid::parse(String::from_array(output))
+}
+
+pub fn Uuid::parse_urn(value : String) -> Result[Uuid, UlidError] {
+  if value.length() != 41 ||
+    value.code_unit_at(0) != 'u'.to_int().to_uint16() ||
+    value.code_unit_at(1) != 'r'.to_int().to_uint16() ||
+    value.code_unit_at(2) != 'n'.to_int().to_uint16() ||
+    value.code_unit_at(3) != ':'.to_int().to_uint16() ||
+    value.code_unit_at(4) != 'u'.to_int().to_uint16() ||
+    value.code_unit_at(5) != 'u'.to_int().to_uint16() ||
+    value.code_unit_at(6) != 'i'.to_int().to_uint16() ||
+    value.code_unit_at(7) != 'd'.to_int().to_uint16() ||
+    value.code_unit_at(8) != ':'.to_int().to_uint16() {
+    return Result::Err(InvalidUuidFormat)
+  }
+  Uuid::parse_compact(value[9:41].to_owned())
+}
+
+pub fn Uuid::parse_any(value : String) -> Result[Uuid, UlidError] {
+  if value.length() == 36 {
+    Uuid::parse(value)
+  } else if value.length() == 32 {
+    Uuid::parse_compact(value)
+  } else {
+    Uuid::parse_urn(value)
+  }
+}
+
+pub fn Uuid::is_version(self : Uuid, version : Int) -> Bool {
+  self.version() == version
+}
+
+pub fn Uuid::is_valid(value : String) -> Bool {
+  match Uuid::parse(value) {
+    Ok(_) => true
+    Err(_) => false
+  }
+}
+
+pub fn Uuid::timestamp_ms(self : Uuid) -> UInt64 {
+  (self.bytes[0].to_int().to_uint64() << 40) |
+  (self.bytes[1].to_int().to_uint64() << 32) |
+  (self.bytes[2].to_int().to_uint64() << 24) |
+  (self.bytes[3].to_int().to_uint64() << 16) |
+  (self.bytes[4].to_int().to_uint64() << 8) |
+  self.bytes[5].to_int().to_uint64()
+}
+
 pub fn Uuid::parse(value : String) -> Result[Uuid, UlidError] {
   if value.length() != 36 {
     return Result::Err(InvalidUuidFormat)
