@@ -1,4 +1,4 @@
-# mbt_id_kit
+# moon_id_kit
 
 使用 MoonBit 编写的多类型唯一标识符库，当前支持 ULID、UUID、NanoID、KSUID、CUID 和 CUID2。
 
