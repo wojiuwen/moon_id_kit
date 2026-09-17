@@ -22,6 +22,8 @@
 - Base32、Base58、Crockford 编码器等内部辅助函数。
 - RFC3339 及其他时间格式转换。
 
+库生成的 ID 用于资源标识和记录关联，不应直接作为密码重置令牌、会话令牌或其他安全凭证。当前版本没有公开可注入的密码学随机源 API；安全凭证应使用目标平台提供的专用安全随机数接口。
+
 MoonBit 示例使用方法调用形式，例如 `Ulid::parse(value)`；实际包名和导入方式以包配置为准。
 
 ## 3. 已实现 API
@@ -112,13 +114,13 @@ pub fn Uuid::is_valid(value : String) -> Bool
 pub fn Uuid::timestamp_ms(self : Uuid) -> UInt64
 ```
 
-第一版支持标准 36 字符格式：
+第一版支持标准 36 字符格式、32 字符紧凑格式和 `urn:uuid:` 格式：
 
 ```text
 xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
-输出使用小写十六进制。无连字符、花括号和 URN 格式不属于第一版稳定输入范围。`is_rfc_variant` 用于检查 RFC 变体；UUID v6 转换只接受版本 6 且使用 RFC 变体的 UUID。
+输出使用小写十六进制。花括号格式不属于第一版稳定输入范围。`is_rfc_variant` 用于检查 RFC 变体；UUID v6 转换只接受版本 6 且使用 RFC 变体的 UUID。
 
 `generate` 和 `generate_v4` 生成 RFC 变体的 UUID v4。`generate_v7` 生成带 Unix 毫秒时间戳的 UUID v7；`timestamp_ms` 读取 UUID 前 48 位的时间字段，主要用于 UUID v7。
 
@@ -300,7 +302,6 @@ pub fn Cuid2::to_string(self : Cuid2) -> String
 
 在核心类型稳定后，可以考虑加入：
 
-- 批量生成 API，例如 `generate_many`。
 - 可注入时间源和随机源，便于测试和可复现生成。
 - Unix 时间和 RFC3339 转换。
 - Base32、Base58 和其他编码的独立公开 API。

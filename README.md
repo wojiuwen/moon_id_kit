@@ -16,6 +16,8 @@
 
 所有可能失败的解析、创建和生成操作都返回结构化 `Result`。完整 API 约定请参阅 [api-v1.md](api-v1.md)。
 
+本库生成的 ID 适合标识资源和记录，不应直接用作密码重置令牌、会话令牌或其他需要密码学安全随机数的凭证。批量生成接口对负数数量返回错误；调用方仍应对批量大小和输入长度设置业务侧限制。
+
 ## 已实现 API
 
 ### ULID
@@ -146,7 +148,7 @@ ULID 和 UUID 操作使用 `UlidError`，NanoID、KSUID、CUID 和 CUID2 使用 
 ## 项目结构
 
 ```text
-moon_id_kid/
+moon_id_kit/
 ├── src/
 │   ├── ulid.mbt                 # ULID、UlidError 和 IdError
 │   ├── ulid_generator.mbt       # 普通 ULID 生成
@@ -158,7 +160,11 @@ moon_id_kid/
 │   ├── ulid_uuid.mbt           # UUID v6 转 ULID
 │   ├── nanoid.mbt              # NanoID
 │   ├── ksuid.mbt               # KSUID
-│   └── cuid.mbt                # CUID 和 CUID2
+│   ├── cuid.mbt                # CUID 和 CUID2
+│   ├── constants.mbt           # 内部长度和时间范围常量
+│   ├── random_helpers.mbt      # 内部随机字节和随机索引工具
+│   ├── alphabet_helpers.mbt    # 内部字符表查找和拒绝采样
+│   └── validation_helpers.mbt  # 内部校验和批量生成工具
 ├── cmd/main/                   # 演示程序
 ├── api-v1.md                   # API 规范
 ├── moon.mod.json               # 模块配置
