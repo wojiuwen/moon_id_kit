@@ -25,7 +25,7 @@ pub fn Ulid::from_uuid_v6(value : Uuid) -> Result[Ulid, UlidError] {
     return Result::Err(UuidTimestampOutOfRange(uuid_timestamp))
   }
   let timestamp_ms = (uuid_timestamp - gregorian_offset) / 10000
-  if timestamp_ms > 0xFFFFFFFFFFFF {
+  if timestamp_ms > ULID_MAX_TIMESTAMP {
     return Result::Err(UuidTimestampOutOfRange(timestamp_ms))
   }
 

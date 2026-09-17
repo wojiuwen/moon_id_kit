@@ -23,19 +23,19 @@ pub fn MonotonicUlidGenerator::generate_at(
   self : MonotonicUlidGenerator,
   timestamp_ms : UInt64,
 ) -> Result[Ulid, UlidError] {
-  if timestamp_ms > 0xFFFFFFFFFFFF {
+  if timestamp_ms > ULID_MAX_TIMESTAMP {
     return Result::Err(TimestampOverflow(timestamp_ms))
   }
 
   if !self.initialized || timestamp_ms > self.last_timestamp {
     self.last_timestamp = timestamp_ms
-    self.randomness = generate_random_bytes()
+    self.randomness = random_bytes(10)
     self.initialized = true
   } else {
     match increment_randomness(self.randomness) {
       Some(randomness) => self.randomness = randomness
       None => {
-        if self.last_timestamp == 0xFFFFFFFFFFFF {
+        if self.last_timestamp == ULID_MAX_TIMESTAMP {
           return Result::Err(TimestampOverflow(self.last_timestamp))
         }
         self.last_timestamp += 1

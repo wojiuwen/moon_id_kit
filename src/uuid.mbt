@@ -10,23 +10,17 @@ pub fn Uuid::generate() -> Uuid {
 }
 
 pub fn Uuid::generate_v4() -> Uuid {
-  let random = @random.Rand::new()
-  let bytes : Array[Byte] = [
-    for _ in 0..<16 => random.uint64().to_byte()
-  ]
+  let bytes : Array[Byte] = random_bytes(16).to_array()
   bytes[6] = ((bytes[6].to_int() & 0x0F) | 0x40).to_byte()
   bytes[8] = ((bytes[8].to_int() & 0x3F) | 0x80).to_byte()
   Uuid::{ bytes: Bytes::from_array(bytes) }
 }
 
 pub fn Uuid::generate_v7(timestamp_ms : UInt64) -> Result[Uuid, UlidError] {
-  if timestamp_ms > 0xFFFFFFFFFFFF {
+  if timestamp_ms > ULID_MAX_TIMESTAMP {
     return Result::Err(TimestampOverflow(timestamp_ms))
   }
-  let random = @random.Rand::new()
-  let bytes : Array[Byte] = [
-    for _ in 0..<16 => random.uint64().to_byte()
-  ]
+  let bytes : Array[Byte] = random_bytes(16).to_array()
   bytes[0] = (timestamp_ms >> 40).to_byte()
   bytes[1] = (timestamp_ms >> 32).to_byte()
   bytes[2] = (timestamp_ms >> 24).to_byte()

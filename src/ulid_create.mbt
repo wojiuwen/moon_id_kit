@@ -11,7 +11,7 @@ pub fn Ulid::from_parts(
   }
   
   // 检查时间戳是否在 48 位范围内
-  if timestamp_ms > 0xFFFFFFFFFFFF {
+  if timestamp_ms > ULID_MAX_TIMESTAMP {
     return Result::Err(TimestampOverflow(timestamp_ms))
   }
   
@@ -22,20 +22,8 @@ pub fn Ulid::from_parts(
 }
 
 pub fn Ulid::is_valid(value : String) -> Bool {
-  // 检查长度
-  if value.length() != 26 {
-    return false
+  match Ulid::parse(value) {
+    Ok(_) => true
+    Err(_) => false
   }
-
-  if base32_value(value[0]) > 7 {
-    return false
-  }
-
-  for i in 0..<value.length() {
-    if base32_value(value.code_unit_at(i)) < 0 {
-      return false
-    }
-  }
-  
-  true
 }

@@ -61,10 +61,5 @@ pub fn NanoId::is_valid(value : String) -> Bool {
 }
 
 fn nanoid_value(character : UInt16) -> Int {
-  for index in 0..<64 {
-    if NANOID_ALPHABET.code_unit_at(index) == character {
-      return index
-    }
-  }
-  -1
+  alphabet_value(NANOID_ALPHABET, character)
 }

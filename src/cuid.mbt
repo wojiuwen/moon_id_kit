@@ -68,9 +68,8 @@ pub struct Cuid2 {
 }
 
 pub fn Cuid2::generate() -> Result[Cuid2, IdError] {
-  let random = @random.Rand::new()
   let value : Array[Char] = []
-  value.push((97 + (random.uint64() % 26).to_int()).to_byte().to_char())
+  value.push((97 + random_index(26)).to_byte().to_char())
   for character in random_base36_string(23) {
     value.push(character)
   }
@@ -132,18 +131,12 @@ fn encode_base36_fixed(input : UInt64, size : Int) -> Array[Char] {
 }
 
 fn random_base36_string(size : Int) -> Array[Char] {
-  let random = @random.Rand::new()
   [
     for _ in 0..<size =>
-      BASE36_ALPHABET.code_unit_at((random.uint64() % 36).to_int()).to_char().unwrap()
+      BASE36_ALPHABET.code_unit_at(random_index(36)).to_char().unwrap()
   ]
 }
 
 fn base36_value(character : UInt16) -> Int {
-  for index in 0..<36 {
-    if BASE36_ALPHABET.code_unit_at(index) == character {
-      return index
-    }
-  }
-  -1
+  alphabet_value(BASE36_ALPHABET, character)
 }

@@ -19,7 +19,7 @@ pub fn Ulid::parse(value : String) -> Result[Ulid, UlidError] {
   for index in 0..<10 {
     timestamp = (timestamp << 5) | base32_value(value.code_unit_at(index)).to_uint64()
   }
-  timestamp = timestamp & 0xFFFFFFFFFFFF
+  timestamp = timestamp & ULID_MAX_TIMESTAMP
   let randomness = decode_randomness(value)
   Ulid::from_parts(timestamp, randomness)
 }

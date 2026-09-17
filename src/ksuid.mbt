@@ -19,9 +19,9 @@ pub fn Ksuid::generate_at(timestamp_seconds : UInt64) -> Result[Ksuid, IdError] 
   bytes[1] = (timestamp >> 16).to_byte()
   bytes[2] = (timestamp >> 8).to_byte()
   bytes[3] = timestamp.to_byte()
-  let random = @random.Rand::new()
+  let random = random_bytes(16)
   for index in 4..<20 {
-    bytes[index] = random.uint64().to_byte()
+    bytes[index] = random[index - 4]
   }
   Result::Ok(Ksuid::{ bytes: Bytes::from_array(bytes) })
 }
@@ -113,10 +113,5 @@ pub fn Ksuid::is_valid(value : String) -> Bool {
 }
 
 fn ksuid_value(character : UInt16) -> Int {
-  for index in 0..<62 {
-    if KSUID_ALPHABET.code_unit_at(index) == character {
-      return index
-    }
-  }
-  -1
+  alphabet_value(KSUID_ALPHABET, character)
 }
