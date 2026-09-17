@@ -6,8 +6,8 @@ pub fn Ulid::from_parts(
   randomness : Bytes,
 ) -> Result[Ulid, UlidError] {
   // 检查随机字节长度
-  if randomness.length() != 10 {
-    return Result::Err(InvalidByteLength(10, randomness.length()))
+  if randomness.length() != ULID_RANDOMNESS_LENGTH {
+    return Result::Err(InvalidByteLength(ULID_RANDOMNESS_LENGTH, randomness.length()))
   }
   
   // 检查时间戳是否在 48 位范围内

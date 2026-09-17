@@ -44,18 +44,18 @@ pub fn Uuid::to_bytes(self : Uuid) -> Bytes {
 }
 
 pub fn Uuid::from_bytes(value : Bytes) -> Result[Uuid, UlidError] {
-  if value.length() != 16 {
-    return Result::Err(InvalidByteLength(16, value.length()))
+  if value.length() != UUID_BYTE_LENGTH {
+    return Result::Err(InvalidByteLength(UUID_BYTE_LENGTH, value.length()))
   }
   Result::Ok(Uuid::{ bytes: value })
 }
 
 pub fn Uuid::parse_compact(value : String) -> Result[Uuid, UlidError] {
-  if value.length() != 32 {
+  if value.length() != UUID_COMPACT_LENGTH {
     return Result::Err(InvalidUuidFormat)
   }
   let output : Array[Char] = []
-  for index in 0..<32 {
+  for index in 0..<UUID_COMPACT_LENGTH {
     output.push(value.get_char(index).unwrap())
     if index == 7 || index == 11 || index == 15 || index == 19 {
       output.push('-')
@@ -65,7 +65,7 @@ pub fn Uuid::parse_compact(value : String) -> Result[Uuid, UlidError] {
 }
 
 pub fn Uuid::parse_urn(value : String) -> Result[Uuid, UlidError] {
-  if value.length() != 41 ||
+  if value.length() != UUID_URN_LENGTH ||
     value.code_unit_at(0) != 'u'.to_int().to_uint16() ||
     value.code_unit_at(1) != 'r'.to_int().to_uint16() ||
     value.code_unit_at(2) != 'n'.to_int().to_uint16() ||
@@ -81,9 +81,9 @@ pub fn Uuid::parse_urn(value : String) -> Result[Uuid, UlidError] {
 }
 
 pub fn Uuid::parse_any(value : String) -> Result[Uuid, UlidError] {
-  if value.length() == 36 {
+  if value.length() == UUID_STRING_LENGTH {
     Uuid::parse(value)
-  } else if value.length() == 32 {
+  } else if value.length() == UUID_COMPACT_LENGTH {
     Uuid::parse_compact(value)
   } else {
     Uuid::parse_urn(value)
@@ -108,11 +108,11 @@ pub fn Uuid::timestamp_ms(self : Uuid) -> UInt64 {
 }
 
 pub fn Uuid::parse(value : String) -> Result[Uuid, UlidError] {
-  if value.length() != 36 {
+  if value.length() != UUID_STRING_LENGTH {
     return Result::Err(InvalidUuidFormat)
   }
   let hyphens = [8, 13, 18, 23]
-  for position in 0..<36 {
+  for position in 0..<UUID_STRING_LENGTH {
     if hyphens.contains(position) {
       if value.get_char(position).unwrap() != '-' {
         return Result::Err(InvalidUuidFormat)
@@ -122,7 +122,7 @@ pub fn Uuid::parse(value : String) -> Result[Uuid, UlidError] {
     }
   }
   let bytes : Bytes = [
-    for byte_index in 0..<16 => {
+    for byte_index in 0..<UUID_BYTE_LENGTH => {
       let value_index = if byte_index < 4 {
         byte_index * 2
       } else if byte_index < 6 {

@@ -29,13 +29,13 @@ pub fn Cuid::generate_many(count : Int) -> Result[Array[Cuid], IdError] {
 }
 
 pub fn Cuid::parse(value : String) -> Result[Cuid, IdError] {
-  if value.length() != 25 {
-    return Result::Err(InvalidIdLength(25, value.length()))
+  if value.length() != CUID_STRING_LENGTH {
+    return Result::Err(InvalidIdLength(CUID_STRING_LENGTH, value.length()))
   }
   if value.code_unit_at(0) != 'c'.to_int().to_uint16() {
     return Result::Err(InvalidIdFormat)
   }
-  for index in 1..<25 {
+  for index in 1..<CUID_STRING_LENGTH {
     if base36_value(value.code_unit_at(index)) < 0 {
       return Result::Err(
         InvalidIdCharacter(index, value.get_char(index).unwrap()),
@@ -74,14 +74,14 @@ pub fn Cuid2::generate_many(count : Int) -> Result[Array[Cuid2], IdError] {
 }
 
 pub fn Cuid2::parse(value : String) -> Result[Cuid2, IdError] {
-  if value.length() != 24 {
-    return Result::Err(InvalidIdLength(24, value.length()))
+  if value.length() != CUID2_STRING_LENGTH {
+    return Result::Err(InvalidIdLength(CUID2_STRING_LENGTH, value.length()))
   }
   let first = value.code_unit_at(0).to_int()
   if first < 97 || first > 122 {
     return Result::Err(InvalidIdFormat)
   }
-  for index in 1..<24 {
+  for index in 1..<CUID2_STRING_LENGTH {
     if base36_value(value.code_unit_at(index)) < 0 {
       return Result::Err(
         InvalidIdCharacter(index, value.get_char(index).unwrap()),

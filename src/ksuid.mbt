@@ -34,11 +34,11 @@ pub fn Ksuid::generate_many(count : Int) -> Result[Array[Ksuid], IdError] {
 }
 
 pub fn Ksuid::parse(value : String) -> Result[Ksuid, IdError] {
-  if value.length() != 27 {
-    return Result::Err(InvalidIdLength(27, value.length()))
+  if value.length() != KSUID_STRING_LENGTH {
+    return Result::Err(InvalidIdLength(KSUID_STRING_LENGTH, value.length()))
   }
   let bytes : Array[Byte] = [for _ in 0..<20 => 0]
-  for character_index in 0..<27 {
+  for character_index in 0..<KSUID_STRING_LENGTH {
     let digit = ksuid_value(value.code_unit_at(character_index))
     if digit < 0 {
       return Result::Err(
@@ -92,8 +92,8 @@ pub fn Ksuid::to_bytes(self : Ksuid) -> Bytes {
 }
 
 pub fn Ksuid::from_bytes(value : Bytes) -> Result[Ksuid, IdError] {
-  if value.length() != 20 {
-    return Result::Err(InvalidIdLength(20, value.length()))
+  if value.length() != KSUID_BYTE_LENGTH {
+    return Result::Err(InvalidIdLength(KSUID_BYTE_LENGTH, value.length()))
   }
   Result::Ok(Ksuid::{ bytes: value })
 }

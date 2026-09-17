@@ -2,11 +2,11 @@
 /// ULID 字符串转换功能
 ///| 
 pub fn Ulid::parse(value : String) -> Result[Ulid, UlidError] {
-  if value.length() != 26 {
-    return Result::Err(InvalidLength(26, value.length()))
+  if value.length() != ULID_STRING_LENGTH {
+    return Result::Err(InvalidLength(ULID_STRING_LENGTH, value.length()))
   }
 
-  for index in 0..<26 {
+  for index in 0..<ULID_STRING_LENGTH {
     let digit = base32_value(value[index])
     if digit < 0 {
       return Result::Err(InvalidCharacter(index, value[index].to_char().unwrap()))

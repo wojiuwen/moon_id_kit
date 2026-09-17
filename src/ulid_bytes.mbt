@@ -17,8 +17,8 @@ pub fn Ulid::to_bytes(self : Ulid) -> Bytes {
 ///|
 pub fn Ulid::from_bytes(value : Bytes) -> Result[Ulid, UlidError] {
   // 检查字节长度
-  if value.length() != 16 {
-    return Result::Err(InvalidByteLength(16, value.length()))
+  if value.length() != ULID_BYTE_LENGTH {
+    return Result::Err(InvalidByteLength(ULID_BYTE_LENGTH, value.length()))
   }
 
   // 提取时间戳（前 6 字节）
@@ -30,6 +30,6 @@ pub fn Ulid::from_bytes(value : Bytes) -> Result[Ulid, UlidError] {
     value[5].to_int().to_uint64()
 
   // 提取随机数据（后 10 字节）
-  let randomness : Bytes = [ for i in 0..<10 => value[6 + i] ]
+  let randomness : Bytes = [ for i in 0..<ULID_RANDOMNESS_LENGTH => value[6 + i] ]
   Ulid::from_parts(timestamp, randomness)
 }
