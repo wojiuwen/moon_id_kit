@@ -54,14 +54,7 @@ pub fn MonotonicUlidGenerator::generate_many(
   if !is_non_negative(count) {
     return Result::Err(InvalidLength(0, count))
   }
-  let output : Array[Ulid] = []
-  for _ in 0..<count {
-    match self.generate() {
-      Ok(value) => output.push(value)
-      Err(error) => return Result::Err(error)
-    }
-  }
-  Result::Ok(output)
+  generate_many_with(count, fn() { self.generate() })
 }
 
 fn increment_randomness(value : Bytes) -> Option[Bytes] {

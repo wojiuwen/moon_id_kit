@@ -21,14 +21,7 @@ pub fn Ulid::generate_many(count : Int) -> Result[Array[Ulid], UlidError] {
   if !is_non_negative(count) {
     return Result::Err(InvalidLength(0, count))
   }
-  let output : Array[Ulid] = []
-  for _ in 0..<count {
-    match Ulid::generate() {
-      Ok(value) => output.push(value)
-      Err(error) => return Result::Err(error)
-    }
-  }
-  Result::Ok(output)
+  generate_many_with(count, fn() { Ulid::generate() })
 }
 
 fn get_current_timestamp() -> UInt64 {

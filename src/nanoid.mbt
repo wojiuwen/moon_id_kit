@@ -25,14 +25,7 @@ pub fn NanoId::generate_many(count : Int) -> Result[Array[NanoId], IdError] {
   if !is_non_negative(count) {
     return Result::Err(InvalidSize(count))
   }
-  let output : Array[NanoId] = []
-  for _ in 0..<count {
-    match NanoId::generate() {
-      Ok(value) => output.push(value)
-      Err(error) => return Result::Err(error)
-    }
-  }
-  Result::Ok(output)
+  generate_many_with(count, fn() { NanoId::generate() })
 }
 
 pub fn NanoId::parse(value : String) -> Result[NanoId, IdError] {

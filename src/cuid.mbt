@@ -25,14 +25,7 @@ pub fn Cuid::generate_many(count : Int) -> Result[Array[Cuid], IdError] {
   if !is_non_negative(count) {
     return Result::Err(InvalidSize(count))
   }
-  let output : Array[Cuid] = []
-  for _ in 0..<count {
-    match Cuid::generate() {
-      Ok(value) => output.push(value)
-      Err(error) => return Result::Err(error)
-    }
-  }
-  Result::Ok(output)
+  generate_many_with(count, fn() { Cuid::generate() })
 }
 
 pub fn Cuid::parse(value : String) -> Result[Cuid, IdError] {
@@ -77,14 +70,7 @@ pub fn Cuid2::generate_many(count : Int) -> Result[Array[Cuid2], IdError] {
   if !is_non_negative(count) {
     return Result::Err(InvalidSize(count))
   }
-  let output : Array[Cuid2] = []
-  for _ in 0..<count {
-    match Cuid2::generate() {
-      Ok(value) => output.push(value)
-      Err(error) => return Result::Err(error)
-    }
-  }
-  Result::Ok(output)
+  generate_many_with(count, fn() { Cuid2::generate() })
 }
 
 pub fn Cuid2::parse(value : String) -> Result[Cuid2, IdError] {

@@ -36,11 +36,7 @@ pub fn Uuid::generate_many(count : Int) -> Result[Array[Uuid], UlidError] {
   if !is_non_negative(count) {
     return Result::Err(InvalidLength(0, count))
   }
-  let output : Array[Uuid] = []
-  for _ in 0..<count {
-    output.push(Uuid::generate_v4())
-  }
-  Result::Ok(output)
+  generate_many_with(count, fn() { Result::Ok(Uuid::generate_v4()) })
 }
 
 pub fn Uuid::to_bytes(self : Uuid) -> Bytes {
