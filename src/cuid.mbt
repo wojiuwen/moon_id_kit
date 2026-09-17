@@ -22,7 +22,7 @@ pub fn Cuid::generate() -> Result[Cuid, IdError] {
 }
 
 pub fn Cuid::generate_many(count : Int) -> Result[Array[Cuid], IdError] {
-  if count < 0 {
+  if !is_non_negative(count) {
     return Result::Err(InvalidSize(count))
   }
   let output : Array[Cuid] = []
@@ -57,10 +57,7 @@ pub fn Cuid::to_string(self : Cuid) -> String {
 }
 
 pub fn Cuid::is_valid(value : String) -> Bool {
-  match Cuid::parse(value) {
-    Ok(_) => true
-    Err(_) => false
-  }
+  result_is_ok(Cuid::parse(value))
 }
 
 pub struct Cuid2 {
@@ -77,7 +74,7 @@ pub fn Cuid2::generate() -> Result[Cuid2, IdError] {
 }
 
 pub fn Cuid2::generate_many(count : Int) -> Result[Array[Cuid2], IdError] {
-  if count < 0 {
+  if !is_non_negative(count) {
     return Result::Err(InvalidSize(count))
   }
   let output : Array[Cuid2] = []
@@ -113,10 +110,7 @@ pub fn Cuid2::to_string(self : Cuid2) -> String {
 }
 
 pub fn Cuid2::is_valid(value : String) -> Bool {
-  match Cuid2::parse(value) {
-    Ok(_) => true
-    Err(_) => false
-  }
+  result_is_ok(Cuid2::parse(value))
 }
 
 fn encode_base36_fixed(input : UInt64, size : Int) -> Array[Char] {

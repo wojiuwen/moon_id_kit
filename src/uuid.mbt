@@ -33,7 +33,7 @@ pub fn Uuid::generate_v7(timestamp_ms : UInt64) -> Result[Uuid, UlidError] {
 }
 
 pub fn Uuid::generate_many(count : Int) -> Result[Array[Uuid], UlidError] {
-  if count < 0 {
+  if !is_non_negative(count) {
     return Result::Err(InvalidLength(0, count))
   }
   let output : Array[Uuid] = []
@@ -99,10 +99,7 @@ pub fn Uuid::is_version(self : Uuid, version : Int) -> Bool {
 }
 
 pub fn Uuid::is_valid(value : String) -> Bool {
-  match Uuid::parse(value) {
-    Ok(_) => true
-    Err(_) => false
-  }
+  result_is_ok(Uuid::parse(value))
 }
 
 pub fn Uuid::timestamp_ms(self : Uuid) -> UInt64 {

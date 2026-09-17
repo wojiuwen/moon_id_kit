@@ -27,7 +27,7 @@ pub fn Ksuid::generate_at(timestamp_seconds : UInt64) -> Result[Ksuid, IdError] 
 }
 
 pub fn Ksuid::generate_many(count : Int) -> Result[Array[Ksuid], IdError] {
-  if count < 0 {
+  if !is_non_negative(count) {
     return Result::Err(InvalidSize(count))
   }
   let output : Array[Ksuid] = []
@@ -106,10 +106,7 @@ pub fn Ksuid::from_bytes(value : Bytes) -> Result[Ksuid, IdError] {
 }
 
 pub fn Ksuid::is_valid(value : String) -> Bool {
-  match Ksuid::parse(value) {
-    Ok(_) => true
-    Err(_) => false
-  }
+  result_is_ok(Ksuid::parse(value))
 }
 
 fn ksuid_value(character : UInt16) -> Int {

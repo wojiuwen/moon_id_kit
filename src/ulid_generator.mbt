@@ -18,7 +18,7 @@ pub fn Ulid::generate_at(timestamp_ms : UInt64) -> Result[Ulid, UlidError] {
 }
 
 pub fn Ulid::generate_many(count : Int) -> Result[Array[Ulid], UlidError] {
-  if count < 0 {
+  if !is_non_negative(count) {
     return Result::Err(InvalidLength(0, count))
   }
   let output : Array[Ulid] = []

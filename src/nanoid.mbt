@@ -22,7 +22,7 @@ pub fn NanoId::generate_with_size(size : Int) -> Result[NanoId, IdError] {
 }
 
 pub fn NanoId::generate_many(count : Int) -> Result[Array[NanoId], IdError] {
-  if count < 0 {
+  if !is_non_negative(count) {
     return Result::Err(InvalidSize(count))
   }
   let output : Array[NanoId] = []
@@ -54,10 +54,7 @@ pub fn NanoId::to_string(self : NanoId) -> String {
 }
 
 pub fn NanoId::is_valid(value : String) -> Bool {
-  match NanoId::parse(value) {
-    Ok(_) => true
-    Err(_) => false
-  }
+  result_is_ok(NanoId::parse(value))
 }
 
 fn nanoid_value(character : UInt16) -> Int {

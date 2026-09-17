@@ -51,7 +51,7 @@ pub fn MonotonicUlidGenerator::generate_many(
   self : MonotonicUlidGenerator,
   count : Int,
 ) -> Result[Array[Ulid], UlidError] {
-  if count < 0 {
+  if !is_non_negative(count) {
     return Result::Err(InvalidLength(0, count))
   }
   let output : Array[Ulid] = []
